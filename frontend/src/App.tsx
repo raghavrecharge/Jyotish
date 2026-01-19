@@ -33,27 +33,27 @@ import {
   MapPinIcon
 } from '@heroicons/react/24/outline';
 
-import { BirthData, DivisionalChart, DashaNode, UserProfile, YogaMatch, ChatMessage, Sign, Planet, TransitContext, PlannerData, ShadbalaData, CompatibilityData, Remedy, KBChunk, ServiceStatus, UserAccount, LoginCredentials } from './types.ts';
-import { astrologyService, VarshaphalaData, AshtakavargaData } from './services/astrologyService.ts';
-import { geminiService } from './services/geminiService.ts';
-import { apiService } from './services/apiService.ts';
-import DashasView from './components/DashasView.tsx';
-import Align27Dashboard from './components/Align27Dashboard.tsx';
-import TodayView from './components/TodayView.tsx';
-import PlannerView from './components/PlannerView.tsx';
-import StrengthView from './components/StrengthView.tsx';
-import CompatibilityView from './components/CompatibilityView.tsx';
-import RemediesView from './components/RemediesView.tsx';
-import KnowledgeView from './components/KnowledgeView.tsx';
-import AshtakavargaView from './components/AshtakavargaView.tsx';
-import VarshaphalaView from './components/VarshaphalaView.tsx';
-import ChatView from './components/ChatView.tsx';
-import PanchangView from './components/PanchangView.tsx';
-import BirthDataForm from './components/BirthDataForm.tsx';
-import LoginView from './components/LoginView.tsx';
-import ProfileView from './components/ProfileView.tsx';
-import NatalChartView from './components/NatalChartView.tsx';
-import { SIGN_NAMES } from './constants.tsx';
+import { BirthData, DivisionalChart, DashaNode, UserProfile, YogaMatch, ChatMessage, Sign, Planet, TransitContext, PlannerData, ShadbalaData, CompatibilityData, Remedy, KBChunk, ServiceStatus, UserAccount, LoginCredentials } from './types';
+import { astrologyService, VarshaphalaData, AshtakavargaData } from './services/astrologyService';
+import { geminiService } from './services/geminiService';
+import { apiService } from './services/apiService';
+import DashasView from './components/DashasView';
+import Align27Dashboard from './components/Align27Dashboard';
+import TodayView from './components/TodayView';
+import PlannerView from './components/PlannerView';
+import StrengthView from './components/StrengthView';
+import CompatibilityView from './components/CompatibilityView';
+import RemediesView from './components/RemediesView';
+import KnowledgeView from './components/KnowledgeView';
+import AshtakavargaView from './components/AshtakavargaView';
+import VarshaphalaView from './components/VarshaphalaView';
+import ChatView from './components/ChatView';
+import PanchangView from './components/PanchangView';
+import BirthDataForm from './components/BirthDataForm';
+import LoginView from './components/LoginView';
+import ProfileView from './components/ProfileView';
+import NatalChartView from './components/NatalChartView';
+import { SIGN_NAMES } from './constants';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
