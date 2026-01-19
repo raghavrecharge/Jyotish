@@ -252,14 +252,15 @@ const App: React.FC = () => {
   // Helper function to transform backend chart to frontend format
   const transformBackendChart = (backendChart: any, chartType: string): DivisionalChart => {
     return {
+      varga: chartType,
       type: chartType,
       name: chartType === 'D1' ? 'Rasi' : chartType,
       points: (backendChart.planets || []).map((p: any) => ({
         planet: p.name || p.planet,
-        longitude: p.longitude || 0,
+        degree: p.longitude || 0,
         sign: p.sign || 0,
         house: p.house || 1,
-        retrograde: p.retrograde || false,
+        isRetrograde: p.retrograde || false,
         nakshatra: p.nakshatra || ''
       })),
       houses: backendChart.houses || [],
