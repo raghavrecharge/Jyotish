@@ -116,10 +116,10 @@ const LoginView: React.FC<Props> = ({ onLogin }) => {
               <h3 className="text-4xl font-black text-slate-800 tracking-tight leading-tight">
                  {isLoginMode ? 'Reconnect' : 'Initiate'}
               </h3>
-              <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em] mt-3 flex items-center gap-2">
-                 <div className="w-4 h-0.5 bg-orange-500 rounded-full" />
+              <span className="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em] mt-3 flex items-center gap-2">
+                 <span className="w-4 h-0.5 bg-orange-500 rounded-full block" />
                  {isLoginMode ? 'Access your celestial vault' : 'Start your journey with the stars'}
-              </p>
+              </span>
            </div>
 
            {/* RECENT ACCOUNTS SELECTOR */}
