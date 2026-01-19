@@ -180,12 +180,15 @@ const App: React.FC = () => {
           // Set today data from align27 or fallback
           const effectiveDailyLocation = panchangLocation || profile.birthData;
           if (align27Data) {
+            const todayResult = astrologyService.getTodayData(effectiveDailyLocation);
             setTodayData({
-              panchang: panchangData || astrologyService.getTodayData(effectiveDailyLocation).panchang,
+              panchang: panchangData || todayResult.panchang,
+              transits: todayResult.transits,
+              horaLord: todayResult.horaLord,
+              isAuspicious: todayResult.isAuspicious,
               score: align27Data.overall_score || 75,
               moments: align27Data.moments || [],
-              rituals: align27Data.rituals || [],
-              transits: transitsData || []
+              rituals: align27Data.rituals || []
             });
           } else {
             setTodayData(astrologyService.getTodayData(effectiveDailyLocation));
