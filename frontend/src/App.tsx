@@ -269,13 +269,14 @@ const App: React.FC = () => {
   };
   
   // Helper function to transform backend dashas
-  const transformBackendDashas = (dashaTree: any[]): DashaPeriod[] => {
-    return (dashaTree || []).map((d: any) => ({
+  const transformBackendDashas = (dashaTree: any[]): DashaNode[] => {
+    return (dashaTree || []).map((d: any, index: number) => ({
+      id: d.id || `dasha-${index}-${d.lord || d.planet}`,
       planet: d.lord || d.planet,
-      start: new Date(d.start),
-      end: new Date(d.end),
+      start: d.start,
+      end: d.end,
       level: d.level || 1,
-      subPeriods: d.children ? transformBackendDashas(d.children) : []
+      children: d.children ? transformBackendDashas(d.children) : undefined
     }));
   };
 
