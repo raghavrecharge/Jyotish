@@ -126,9 +126,13 @@ async def list_profiles(current_user: User = Depends(get_current_user), db: Sess
             "id": p.id,
             "name": p.name,
             "birth_date": p.birth_date.isoformat(),
+            "birth_time": p.birth_time or "12:00:00",
             "birth_place": p.birth_place,
+            "latitude": p.latitude or 28.6139,
+            "longitude": p.longitude or 77.2090,
+            "timezone": p.timezone or "Asia/Kolkata",
             "ayanamsa": p.ayanamsa,
-            "chart_style": p.chart_style.value if p.chart_style else None
+            "chart_style": p.chart_style.value if p.chart_style else "north_indian"
         }
         for p in profiles
     ]
