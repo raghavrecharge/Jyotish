@@ -135,24 +135,102 @@ const App: React.FC = () => {
     boot();
   }, []);
 
-  // HYDRATION ON PROFILE CHANGE
+  // HYDRATION ON PROFILE CHANGE - Fetch data from backend APIs
   useEffect(() => {
     if (profile) {
       const hydrateProfileData = async () => {
         setIsSyncing(true);
         try {
-          // Call API to ensure all profile calculations are synchronized on backend
-          await apiService.getProfileFullData(profile.id);
+          // Fetch all data from backend APIs in parallel
+          const [chartBundle, dashasData, transitsData, align27Data, panchangData, shadbalaData, yogasData] = await Promise.all([
+            apiService.getChartBundle(profile.id),
+            apiService.getDashas(profile.id, 3),
+            apiService.getTransitsToday(profile.id),
+            apiService.getAlign27Today(profile.id),
+            apiService.getPanchang(profile.id),
+            apiService.getShadbala(profile.id),
+            apiService.getYogas(profile.id)
+          ]);
           
+          // Transform backend chart data to frontend format
+          if (chartBundle && chartBundle.d1) {
+            const d1Chart = transformBackendChart(chartBundle.d1, 'D1');
+            setChart(d1Chart);
+            
+            // Set ashtakavarga if available
+            if (chartBundle.ashtakavarga) {
+              setAvData(chartBundle.ashtakavarga);
+            } else {
+              setAvData(astrologyService.calculateAshtakavarga(d1Chart));
+            }
+          } else {
+            // Fallback to local calculation if backend fails
+            const d1 = astrologyService.calculateNatalChart(profile.birthData);
+            setChart(d1);
+            setAvData(astrologyService.calculateAshtakavarga(d1));
+          }
+          
+          // Set dashas from backend or fallback
+          if (dashasData && dashasData.tree) {
+            setDashas(transformBackendDashas(dashasData.tree));
+          } else {
+            setDashas(astrologyService.getVimshottariDashas(profile.birthData, 3));
+          }
+          
+          // Set today data from align27 or fallback
+          const effectiveDailyLocation = panchangLocation || profile.birthData;
+          if (align27Data) {
+            setTodayData({
+              panchang: panchangData || astrologyService.getTodayData(effectiveDailyLocation).panchang,
+              score: align27Data.overall_score || 75,
+              moments: align27Data.moments || [],
+              rituals: align27Data.rituals || [],
+              transits: transitsData || []
+            });
+          } else {
+            setTodayData(astrologyService.getTodayData(effectiveDailyLocation));
+          }
+          
+          setPlannerData(astrologyService.getPlannerData(effectiveDailyLocation));
+          
+          // Set shadbala and remedies
+          if (shadbalaData) {
+            setShadbalaData(shadbalaData);
+            const remedies = await apiService.getRemedies(profile.id);
+            setRemediesData(remedies || astrologyService.generateRemedies(shadbalaData, chart));
+          } else {
+            const sbData = astrologyService.calculateShadbala(profile.birthData);
+            setShadbalaData(sbData);
+            setRemediesData(astrologyService.generateRemedies(sbData, chart));
+          }
+          
+          setKbData(astrologyService.getKnowledgeBase());
+          
+          // Set yogas from backend or fallback
+          if (yogasData && yogasData.length > 0) {
+            setYogas(yogasData);
+          } else if (chart) {
+            setYogas(astrologyService.detectYogas(chart));
+          }
+          
+          // Varshaphala
+          const varshaResponse = await apiService.getVarshaphala(profile.id, varshaYear);
+          if (varshaResponse) {
+            setVarshaData(varshaResponse);
+          } else {
+            setVarshaData(astrologyService.calculateVarshaphala(profile.birthData, varshaYear));
+          }
+          
+        } catch (error) {
+          console.error('Error hydrating profile data:', error);
+          // Fallback to local calculations on error
           const d1 = astrologyService.calculateNatalChart(profile.birthData);
           setChart(d1);
           setDashas(astrologyService.getVimshottariDashas(profile.birthData, 3));
           setAvData(astrologyService.calculateAshtakavarga(d1));
-          
           const effectiveDailyLocation = panchangLocation || profile.birthData;
           setTodayData(astrologyService.getTodayData(effectiveDailyLocation));
           setPlannerData(astrologyService.getPlannerData(effectiveDailyLocation));
-          
           const sbData = astrologyService.calculateShadbala(profile.birthData);
           setShadbalaData(sbData);
           setRemediesData(astrologyService.generateRemedies(sbData, d1));
@@ -167,6 +245,35 @@ const App: React.FC = () => {
       hydrateProfileData();
     }
   }, [profile, varshaYear, panchangLocation]);
+  
+  // Helper function to transform backend chart to frontend format
+  const transformBackendChart = (backendChart: any, chartType: string): DivisionalChart => {
+    return {
+      type: chartType,
+      name: chartType === 'D1' ? 'Rasi' : chartType,
+      points: (backendChart.planets || []).map((p: any) => ({
+        planet: p.name || p.planet,
+        longitude: p.longitude || 0,
+        sign: p.sign || 0,
+        house: p.house || 1,
+        retrograde: p.retrograde || false,
+        nakshatra: p.nakshatra || ''
+      })),
+      houses: backendChart.houses || [],
+      aspects: backendChart.aspects || []
+    };
+  };
+  
+  // Helper function to transform backend dashas
+  const transformBackendDashas = (dashaTree: any[]): DashaPeriod[] => {
+    return (dashaTree || []).map((d: any) => ({
+      planet: d.lord || d.planet,
+      start: new Date(d.start),
+      end: new Date(d.end),
+      level: d.level || 1,
+      subPeriods: d.children ? transformBackendDashas(d.children) : []
+    }));
+  };
 
   const handleLogin = async (creds: LoginCredentials) => {
     setIsSyncing(true);
