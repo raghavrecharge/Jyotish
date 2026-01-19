@@ -348,7 +348,7 @@ export const apiService = {
   
   async getShadbala(profileId: string): Promise<any> {
     try {
-      const response = await apiClient.get(`/api/strength/${profileId}`);
+      const response = await apiClient.get(`/api/strength/${profileId}/shadbala`);
       return response.data;
     } catch (error: any) {
       console.error('Get shadbala error:', error.response?.data || error.message);
