@@ -189,6 +189,17 @@ export interface TransitContext {
   transits: DivisionalChart;
   horaLord: Planet;
   isAuspicious: boolean;
+  score?: number;
+  moments?: Align27Moment[];
+  rituals?: any[];
+}
+
+export interface DashaPeriod {
+  planet: Planet | string;
+  start: Date;
+  end: Date;
+  level: number;
+  subPeriods?: DashaPeriod[];
 }
 
 export interface ActivityScore {
