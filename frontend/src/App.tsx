@@ -33,7 +33,7 @@ import {
   MapPinIcon
 } from '@heroicons/react/24/outline';
 
-import { BirthData, DivisionalChart, DashaNode, UserProfile, YogaMatch, ChatMessage, Sign, Planet, TransitContext, PlannerData, ShadbalaData, CompatibilityData, Remedy, KBChunk, ServiceStatus, UserAccount, LoginCredentials } from './types';
+import { BirthData, DivisionalChart, DashaNode, UserProfile, YogaMatch, ChatMessage, Sign, Planet, TransitContext, PlannerData, ShadbalaData, CompatibilityData, Remedy, KBChunk, ServiceStatus, UserAccount, LoginCredentials, DashaPeriod } from './types';
 import { astrologyService, VarshaphalaData, AshtakavargaData } from './services/astrologyService';
 import { geminiService } from './services/geminiService';
 import { apiService } from './services/apiService';
