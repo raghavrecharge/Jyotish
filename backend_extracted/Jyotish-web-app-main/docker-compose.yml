@@ -1,0 +1,130 @@
+# Astro Jyotish - Docker Compose Configuration
+# Runs both frontend and backend services together
+
+# version: "3.8"
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: astrojyotish-backend
+    ports:
+      - "8001:8001"
+    environment:
+      # Use MySQL service inside compose when available
+      - USE_SQLITE=false
+      - DATABASE_URL=mysql+pymysql://astro:astropass@mysql:3306/astroos
+      # Redis for caching and Celery
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-me}
+      - CORS_ORIGINS=*
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      # If you use Emergent/OpenAI features, set EMERGENT_LLM_KEY in your environment
+      # - EMERGENT_LLM_KEY=${EMERGENT_LLM_KEY:-}
+    volumes:
+      - backend_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Frontend Web Application (frontend1)
+  frontend1:
+    build:
+      context: ./frontend1
+      dockerfile: Dockerfile
+      # Do not pass VITE_BACKEND_URL at build time to avoid baking an absolute API URL into the bundle
+      # The app uses relative paths (e.g. /api/*) so nginx will proxy requests to the backend service
+      # args:
+      #   VITE_BACKEND_URL: http://backend:8001
+    container_name: astrojyotish-frontend1
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - default
+    restart: unless-stopped
+
+  # Optional infrastructure services
+  redis:
+    image: redis:7-alpine
+    container_name: astrojyotish-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: astrojyotish-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: astroos
+      MYSQL_USER: astro
+      MYSQL_PASSWORD: astropass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: astrojyotish-phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=astro
+      - PMA_PASSWORD=astropass
+      - PMA_AUTH_TYPE=config
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    platform: linux/amd64
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: astrojyotish-celery
+    command: celery -A app.worker worker --loglevel=info
+    depends_on:
+      - redis
+      - mysql
+      - backend
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=mysql+pymysql://astro:astropass@mysql:3306/astroos
+    restart: unless-stopped
+
+  flower:
+    image: mher/flower:latest
+    container_name: astrojyotish-flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+    driver: local
+  redis_data:
+    driver: local
+  mysql_data:
+    driver: local
+
+networks:
+  default:
+    name: astrojyotish-network
