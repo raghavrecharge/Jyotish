@@ -46,7 +46,11 @@ export interface ChartPoint {
 
 export interface DivisionalChart {
   varga: string; // D1, D9, D10 etc
+  type?: string; // alias for varga
+  name?: string;
   points: ChartPoint[];
+  houses?: any[];
+  aspects?: any[];
 }
 
 export interface DashaNode {
