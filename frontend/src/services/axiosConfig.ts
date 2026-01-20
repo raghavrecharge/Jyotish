@@ -1,7 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // Get backend URL from environment
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+// In Docker, nginx proxies /api requests to backend, so we use relative URLs
+// Outside Docker, use the full REACT_APP_BACKEND_URL
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
