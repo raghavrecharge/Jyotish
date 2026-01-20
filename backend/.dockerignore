@@ -1,0 +1,39 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv
+env
+*.egg-info
+dist
+build
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Logs
+*.log
+
+# Test
+.pytest_cache
+coverage
+htmlcov
+
+# Database (use volumes)
+*.db
+*.sqlite
+astroos_dev.db
+
+# Environment
+.env.local
+.env.development
+
+# Misc
+.DS_Store
+Thumbs.db
+*.tmp
